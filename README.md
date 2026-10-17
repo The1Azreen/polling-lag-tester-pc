@@ -2,12 +2,31 @@
 
 A lightweight Windows tool that measures **polling rate** and **input lag** for your **mouse, keyboard or controller**, *while you play*. It also has a **Controller Lab** for stick drift and circularity. Stats are shown in a retro dashboard in your browser (styled after [the1azreen.neocities.org](https://the1azreen.neocities.org/)). You can open it on a second monitor, or on your phone.
 
+![Poll//Lag Tester dashboard](docs/screenshots/dashboard.png)
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/polling.png" alt="Polling rate window"><br><sub><b>Polling rate</b>: live/session rate, nominal snap, jitter, cadence</sub></td>
+    <td width="50%"><img src="docs/screenshots/controller-lab.png" alt="Controller Lab"><br><sub><b>Controller Lab</b>: live sticks, drift test, circularity</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/input-lag.png" alt="Input lag, frames and saved sessions"><br><sub><b>Input lag</b>: input → photon via PresentMon, frames, saved sessions</sub></td>
+    <td><img src="docs/screenshots/session.png" alt="Saved session report"><br><sub><b>Session report</b>: full-session charts and stats, exportable as JSON</sub></td>
+  </tr>
+</table>
+
+<p align="center"><img src="docs/screenshots/phone.png" alt="Dashboard on a phone" width="260"><br><sub>Run with <code>--lan</code> and keep the stats on your phone while you play.</sub></p>
+
+<sub>Screenshots use sample data so every panel is filled in.</sub>
+
 ## Quick start
 
 ```powershell
-.\build.ps1                       # -> publish\PollLagTester.exe  (add -SelfContained if the PC has no .NET 8)
+.\build.ps1 -SelfContained        # -> publish\PollLagTester.exe, one file, no .NET install needed
 .\publish\PollLagTester.exe       # opens http://localhost:7272
 ```
+
+`.\build.ps1` without `-SelfContained` makes a ~0.4 MB exe that needs the .NET 8 ASP.NET Core runtime installed. Put the exe somewhere writable (Desktop, Documents): it creates `sessions\` and `tools\` next to itself. The exe isn't code-signed, so SmartScreen may ask you to confirm the first run (**More info → Run anyway**).
 
 Or run straight from source: `dotnet run -c Release --project src/PollLagTester`.
 
@@ -72,3 +91,5 @@ src/PollLagTester/
 ```
 
 Font: PixelMplus12 (M+ FONT LICENSE).
+
+To refresh the screenshots after changing the UI: `python docs/make_screenshots.py src/PollLagTester/wwwroot docs/screenshots` (needs `pip install playwright`; it uses Microsoft Edge and mocks the API, so the app doesn't have to be running).
