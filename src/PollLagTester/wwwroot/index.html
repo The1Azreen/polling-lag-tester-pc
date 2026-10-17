@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poll//Lag Tester</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header>
+    <nav class="desktop" aria-label="Input source">
+      <button class="app-icon" data-mode="mouse" type="button">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#F7C948" d="M5 1h6v1h1v1h1v10h-1v1h-1v1H5v-1H4v-1H3V3h1V2h1z"/><path fill="#1B1B2F" d="M5 2h2v5H4V3h1zM9 2h2v1h1v4H9z"/><path fill="#FF6FF2" d="M7 2h2v5H7z"/></svg>
+        Mouse
+      </button>
+      <button class="app-icon" data-mode="keyboard" type="button">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#F7C948" d="M0 4h16v9H0z"/><path fill="#1B1B2F" d="M1 5h14v7H1z"/><path fill="#6DE0F6" d="M2 6h2v1H2zM5 6h2v1H5zM8 6h2v1H8zM11 6h3v1h-3zM2 8h3v1H2zM6 8h2v1H6zM9 8h2v1H9zM12 8h2v1h-2z"/><path fill="#FF6FF2" d="M4 10h8v1H4z"/></svg>
+        Keyboard
+      </button>
+      <button class="app-icon" data-mode="controller" type="button">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#F7C948" d="M3 4h10v1h1v1h1v6h-1v1h-3v-1h-1v-1H6v1H5v1H2v-1H1V6h1V5h1z"/><path fill="#1B1B2F" d="M4 6h1v1h1v1H5v1H4V8H3V7h1z"/><path fill="#FF6FF2" d="M11 6h1v1h-1zM12 7h1v1h-1zM10 7h1v1h-1zM11 8h1v1h-1z"/></svg>
+        Controller
+      </button>
+    </nav>
+    <div class="logo">
+      <div class="logo-main">POLL<span>//</span>LAG</div>
+      <div class="logo-sub">✦ polling rate &amp; input lag monitor ✦</div>
+    </div>
+    <nav class="desktop right" aria-label="Tools">
+      <a class="app-icon" href="#w-sessions">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#F7C948" d="M1 3h5l1 1h8v9H1z"/><path fill="#FFE08A" d="M1 6h14v7H1z"/></svg>
+        Sessions
+      </a>
+      <button class="app-icon" id="icon-help" type="button">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#fff" d="M3 1h8l2 2v12H3z"/><path fill="#3C2E7B" d="M5 5h6v1H5zM5 7h6v1H5zM5 9h6v1H5zM5 11h4v1H5z"/></svg>
+        Readme
+      </button>
+      <button class="app-icon" id="icon-sky" type="button">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#6DE0F6" d="M7 1h2v4h1v1h4v2h-4v1H9v4H7v-4H6V8H2V6h4V5h1z"/></svg>
+        Night sky
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="col col-left">
+      <section class="window" data-win="control">
+        <div class="title"><span>Control Panel</span></div>
+        <div class="content">
+          <div class="label">Input source</div>
+          <div class="seg" id="mode-seg">
+            <button class="button" data-mode="mouse" type="button">Mouse</button>
+            <button class="button" data-mode="keyboard" type="button">Keyboard</button>
+            <button class="button" data-mode="controller" type="button">Controller</button>
+          </div>
+          <div class="label">Device</div>
+          <select id="device-select" class="field"><option value="auto">Auto (most active)</option></select>
+          <div class="label">Session</div>
+          <div class="row">
+            <button class="button" id="btn-rec" type="button">● Start session</button>
+            <button class="button" id="btn-reset" type="button">Reset live</button>
+          </div>
+          <p class="hint" id="hotkey-hint"></p>
+          <div class="howto" id="howto"></div>
+        </div>
+      </section>
+
+      <section class="window" data-win="device">
+        <div class="title"><span>Device</span></div>
+        <div class="content">
+          <div class="kv" id="device-info"><span class="dim">No input seen yet. Use the device you picked.</span></div>
+        </div>
+      </section>
+
+      <section class="window" data-win="devices">
+        <div class="title"><span>Detected Devices</span></div>
+        <div class="content">
+          <table class="mini" id="devices-table"><tbody><tr><td class="dim">waiting…</td></tr></tbody></table>
+        </div>
+      </section>
+
+      <section class="window" data-win="overhead">
+        <div class="title"><span>Overhead</span></div>
+        <div class="content">
+          <div class="grid tiles small" id="overhead"></div>
+          <p class="hint">This is the tester's own load. Raw Input is read-only: no hooks, no injection, no drivers, nothing inside the game.</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="col col-mid">
+      <section class="window" data-win="poll">
+        <div class="title"><span>Polling Rate</span></div>
+        <div class="content">
+          <div class="tabs"><button class="tab on" data-view="live" type="button">LIVE</button><button class="tab" data-view="session" type="button">SESSION</button><span class="tab-note" id="poll-window"></span></div>
+          <div class="hero">
+            <div class="big"><span id="poll-big">----</span><small id="poll-unit">Hz</small></div>
+            <div class="badges">
+              <span class="badge" id="poll-nominal">waiting for input</span>
+              <span class="badge" id="poll-quality" hidden></span>
+            </div>
+          </div>
+          <div class="meter-row"><span class="meter-label" id="meter-label">on-cadence</span><div class="meter"><div id="poll-meter"></div></div><span id="meter-val">—</span></div>
+          <div class="grid tiles" id="poll-tiles"></div>
+        </div>
+      </section>
+
+      <section class="window" data-win="lab" id="w-lab" hidden>
+        <div class="title"><span>Controller Lab · sticks &amp; drift</span></div>
+        <div class="content">
+          <p class="dim small" id="lab-status">Waiting for a controller report. Move a stick.</p>
+          <div class="sticks">
+            <figure class="stick">
+              <canvas id="stick-l" width="220" height="220"></canvas>
+              <figcaption><b>Left stick</b><span id="stick-l-val">—</span></figcaption>
+            </figure>
+            <figure class="stick">
+              <canvas id="stick-r" width="220" height="220"></canvas>
+              <figcaption><b>Right stick</b><span id="stick-r-val">—</span></figcaption>
+            </figure>
+          </div>
+          <div class="triggers">
+            <div class="trig"><span>LT</span><div class="meter"><div id="lt-bar"></div></div><span id="lt-val">—</span></div>
+            <div class="trig"><span>RT</span><div class="meter"><div id="rt-bar"></div></div><span id="rt-val">—</span></div>
+          </div>
+          <div class="label">Buttons <span class="dim" id="hat-val"></span></div>
+          <div class="btn-grid" id="btn-grid"></div>
+          <div class="row lab-actions">
+            <button class="button" id="btn-drift" type="button">Run drift test (5 s)</button>
+            <button class="button" id="btn-circ" type="button">Reset circularity</button>
+          </div>
+          <p class="hint">Drift test: put the controller down and don't touch the sticks. Circularity: rotate each stick slowly around its outer edge 2-3 times.</p>
+          <div id="drift-result"></div>
+          <details class="axes"><summary>Raw HID axes</summary><div class="kv" id="axes-list"></div><p class="hint" id="lab-mapping"></p></details>
+        </div>
+      </section>
+
+      <section class="window" data-win="timeline">
+        <div class="title"><span>Rate Timeline</span></div>
+        <div class="content">
+          <canvas class="chart" id="chart-rate"></canvas>
+          <div class="legend" id="rate-legend"></div>
+        </div>
+      </section>
+
+      <section class="window" data-win="hist">
+        <div class="title"><span>Interval Histogram</span></div>
+        <div class="content">
+          <canvas class="chart" id="chart-hist"></canvas>
+          <p class="hint" id="hist-hint"></p>
+        </div>
+      </section>
+
+      <section class="window" data-win="keys">
+        <div class="title"><span>Clicks, Keys &amp; Chatter</span></div>
+        <div class="content">
+          <div class="grid tiles small" id="keys-tiles"></div>
+          <div class="label">Chatter log <span class="dim">(re-press &lt; 10 ms after release = likely switch bounce)</span></div>
+          <ul class="log" id="chatter-log"><li class="dim">none, nice and clean</li></ul>
+        </div>
+      </section>
+    </div>
+
+    <div class="col col-right">
+      <section class="window" data-win="lag">
+        <div class="title"><span>Input Lag</span></div>
+        <div class="content">
+          <div class="tabs"><button class="tab on" data-view="live" type="button">LIVE</button><button class="tab" data-view="session" type="button">SESSION</button><span class="tab-note">last 5 s</span></div>
+          <div class="status-line" id="lat-status"></div>
+          <div class="row" id="lat-controls">
+            <input class="field grow" id="lat-target" placeholder="game.exe (blank = auto-detect)" spellcheck="false" autocomplete="off">
+            <button class="button" id="btn-lat" type="button">Start</button>
+          </div>
+          <div class="hero">
+            <div class="big"><span id="lag-big">--.-</span><small>ms</small></div>
+            <div class="badges"><span class="badge" id="lag-label">input → photon avg</span><span class="badge" id="lag-target" hidden></span></div>
+          </div>
+          <div class="chain" id="chain"></div>
+          <div class="legend" id="chain-legend"></div>
+          <div class="grid tiles" id="lag-tiles"></div>
+        </div>
+      </section>
+
+      <section class="window" data-win="lagline">
+        <div class="title"><span>Latency Timeline</span></div>
+        <div class="content">
+          <canvas class="chart" id="chart-lag"></canvas>
+          <div class="legend"><i style="--c:var(--yellow)"></i>input → photon <i style="--c:var(--teal)"></i>frame → photon</div>
+        </div>
+      </section>
+
+      <section class="window" data-win="frames">
+        <div class="title"><span>Frames</span></div>
+        <div class="content">
+          <div class="grid tiles small" id="frame-tiles"></div>
+          <canvas class="chart short" id="chart-fps"></canvas>
+          <div class="label">Presenting apps <span class="dim">(click one to target it)</span></div>
+          <ul class="log" id="apps-list"><li class="dim">start tracking to see apps</li></ul>
+        </div>
+      </section>
+
+      <section class="window" data-win="sessions" id="w-sessions">
+        <div class="title"><span>Saved Sessions</span></div>
+        <div class="content">
+          <ul class="sessions" id="sessions-list"><li class="dim">No sessions yet. Press START or Ctrl+Shift+F9.</li></ul>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer id="taskbar">
+    <button class="button start" id="start-btn" type="button">START</button>
+    <div class="vl"></div>
+    <div class="ticker" id="ticker">connecting…</div>
+    <div class="vl"></div>
+    <span class="conn" id="conn" title="connection">●</span>
+    <div class="clock" id="clock">--:--</div>
+  </footer>
+
+  <dialog class="window dlg" id="dlg-session">
+    <div class="title"><span id="dlg-session-title">Session</span><button class="tb-x" type="button" data-close>×</button></div>
+    <div class="content" id="dlg-session-body"></div>
+  </dialog>
+
+  <dialog class="window dlg" id="dlg-help">
+    <div class="title"><span>readme.txt</span><button class="tb-x" type="button" data-close>×</button></div>
+    <div class="content prose">
+      <h3>What's measured, and how</h3>
+      <p><b>Polling rate</b> comes from Windows Raw Input, registered with <code>RIDEV_INPUTSINK</code> so it keeps working while your game has focus. Every report gets a QPC timestamp on a dedicated high-priority thread the moment it arrives. The rate comes from the gaps between reports from the same device.</p>
+      <ul>
+        <li><b>Mouse:</b> reports only while moving. Move fast, in circles. <i>Avg</i> includes slow-movement gaps; <i>median</i> and <i>nominal</i> show the configured rate. <i>On-cadence</i> = reports within ±15% of the nominal interval; <i>off-cadence</i> = gaps over 1.5× (skipped polls or slow movement). <i>Jitter</i> = σ of intervals around nominal.</li>
+        <li><b>Keyboard:</b> reports only when a key changes, so a normal average is meaningless. Each event still lands on a USB poll, so the gaps snap to multiples of the poll period. The estimator finds that grid. Roll your fingers across many keys quickly. Rates above 1-2 kHz may not be resolvable because of OS timing jitter.</li>
+        <li><b>Controller:</b> any HID gamepad (DualSense/DS4, Xbox "HID-compliant game controller", Switch Pro, 8BitDo…). PlayStation pads stream continuously; Xbox pads only report on change, so keep a stick moving.</li>
+      </ul>
+      <p><b>Input lag</b> uses Intel <b>PresentMon</b> (ETW, the same data PresentMon/CapFrameX use). It matches each mouse/keyboard input event the OS sees to the first frame that reaches the display afterwards: <i>input → photon</i>. The tester adds the average <i>poll wait</i> (half the poll interval) for an estimated end-to-end number. Not included: sensor/switch debounce inside the device and the panel's pixel response. Those need a hardware photodiode tester (LDAT, OSLTT…).</p>
+      <p>Controllers aren't visible to the OS input stack, so for them the chain is an <i>estimate</i>: poll wait + ½ frame (the game samples input once per frame) + frame → photon.</p>
+      <p><b>Controller Lab</b> reads the actual stick values from the HID report: drift test (resting offset, noise, max deviation, suggested deadzone) and circularity (outer-edge error, like hardwaretester.com/gamepad). Decoding only runs while the lab is visible or a test is running.</p>
+      <h3>Low overhead by design</h3>
+      <ul>
+        <li>Only the selected input class is registered. The collector thread only timestamps and copies.</li>
+        <li>Stats run 4× a second on a below-normal priority thread, with fixed-size histograms.</li>
+        <li>Opted out of Windows EcoQoS throttling so timestamps stay accurate while the game is in front.</li>
+        <li>This page pauses its stream when hidden. Keep it on a second monitor or open it on your phone with <code>--lan</code>.</li>
+      </ul>
+      <h3>Hotkey</h3>
+      <p><code>Ctrl+Shift+F9</code> starts/stops a session from inside a game. Sessions are saved as JSON in the <code>sessions</code> folder.</p>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
